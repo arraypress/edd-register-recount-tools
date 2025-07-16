@@ -1,0 +1,45 @@
+{
+  "name": "arraypress/edd-register-recount-tools",
+  "version": "1.0.0",
+  "description": "A library for registering custom recount tools in Easy Digital Downloads admin area",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/arraypress/edd-register-recount-tools/",
+  "authors": [
+    {
+      "name": "David Sherlock",
+      "homepage": "https://arraypress.com/"
+    }
+  ],
+  "require": {
+    "php": ">=8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ArrayPress\\EDD\\Register\\": "src/"
+    },
+    "files": [
+      "src/Functions.php"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "support": {
+    "issues": "https://github.com/arraypress/edd-register-recount-tools/issues",
+    "source": "https://github.com/arraypress/edd-register-recount-tools"
+  },
+  "keywords": [
+    "easy-digital-downloads",
+    "edd",
+    "recount-tools",
+    "admin",
+    "tools",
+    "batch-processing",
+    "ecommerce"
+  ]
+}

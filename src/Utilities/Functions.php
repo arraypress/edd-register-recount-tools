@@ -16,24 +16,24 @@ if ( ! function_exists( 'edd_register_recount_tools' ) ) :
 	/**
 	 * Register custom recount tools for EDD.
 	 *
-	 * @param array         $tools          An associative array of custom recount tools.
-	 * @param callable|null $error_callback Optional error handling callback.
+	 * @param array $tools An associative array of custom recount tools.
 	 *
 	 * @return RecountTools|WP_Error
 	 */
-	function edd_register_recount_tools( array $tools, ?callable $error_callback = null ) {
-		$manager = new RecountTools();
-		$result  = $manager->register( $tools );
+	function edd_register_recount_tools( array $tools ) {
+		static $manager = null;
+		if ( null === $manager ) {
+			$manager = new RecountTools();
+			$manager->init();
+		}
+
+		$result = $manager->register( $tools );
 
 		if ( is_wp_error( $result ) ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $result );
-			}
+			edd_debug_log( sprintf( '[EDD Recount Tools] Registration error: %s', $result->get_error_message() ) );
 
 			return $result;
 		}
-
-		$manager->init();
 
 		return $manager;
 	}

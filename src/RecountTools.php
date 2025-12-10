@@ -25,6 +25,13 @@ class RecountTools {
 	private array $tools = [];
 
 	/**
+	 * Whether hooks have been initialized.
+	 *
+	 * @var bool
+	 */
+	private bool $hooks_added = false;
+
+	/**
 	 * Static storage for callback tools (for class access).
 	 *
 	 * @var array
@@ -82,9 +89,8 @@ class RecountTools {
 
 				// Store in static array for class access
 				self::$callback_tools[ $key ] = $validated_tool;
-			}
-			// Check for class-based tool (original approach)
-			else if ( isset( $tool['class'] ) && isset( $tool['file'] ) ) {
+			} // Check for class-based tool (original approach)
+			elseif ( isset( $tool['class'] ) && isset( $tool['file'] ) ) {
 				if ( empty( $tool['class'] ) ) {
 					return new WP_Error(
 						'missing_tool_class',
@@ -121,18 +127,19 @@ class RecountTools {
 
 		$this->tools = array_merge( $this->tools, $validated_tools );
 
-		edd_debug_log( sprintf( '[EDD Recount Tools] Registered %d recount tools', count( $validated_tools ) ) );
+		// Add hooks after tools are registered (if not already added).
+		$this->maybe_add_hooks();
 
 		return true;
 	}
 
 	/**
-	 * Initialize the recount tools registration.
+	 * Add hooks if not already added.
 	 *
 	 * @return void
 	 */
-	public function init(): void {
-		if ( empty( $this->tools ) ) {
+	private function maybe_add_hooks(): void {
+		if ( $this->hooks_added ) {
 			return;
 		}
 
@@ -140,10 +147,10 @@ class RecountTools {
 		add_action( 'edd_recount_tool_descriptions', [ $this, 'add_recount_tool_descriptions' ] );
 		add_action( 'edd_batch_export_class_include', [ $this, 'include_batch_processor' ] );
 
-		// Include the generic callback processor class
+		// Include the generic callback processor class.
 		$this->include_callback_processor_class();
 
-		edd_debug_log( sprintf( '[EDD Recount Tools] Initialized %d recount tools', count( $this->tools ) ) );
+		$this->hooks_added = true;
 	}
 
 	/**
@@ -192,7 +199,7 @@ class RecountTools {
 	public function include_batch_processor( string $class ): void {
 		// Handle callback-based tools
 		if ( $class === 'EDD_Batch_Callback_Processor' ) {
-			// Already included in init()
+			// Already included in maybe_add_hooks()
 			return;
 		}
 
@@ -201,8 +208,6 @@ class RecountTools {
 			if ( $tool['type'] === 'class' && $class === $tool['class'] && ! empty( $tool['file'] ) ) {
 				if ( file_exists( $tool['file'] ) ) {
 					require_once $tool['file'];
-				} else {
-					edd_debug_log( sprintf( '[EDD Recount Tools] File not found: %s', $tool['file'] ), true );
 				}
 				break;
 			}
@@ -219,7 +224,6 @@ class RecountTools {
 			return;
 		}
 
-		// Define the generic callback processor class
 		if ( ! class_exists( 'EDD_Batch_Export' ) ) {
 			return;
 		}
@@ -237,4 +241,5 @@ class RecountTools {
 	public static function get_callback_tool( string $key ): ?array {
 		return self::$callback_tools[ $key ] ?? null;
 	}
+
 }

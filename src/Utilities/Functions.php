@@ -22,16 +22,14 @@ if ( ! function_exists( 'edd_register_recount_tools' ) ) :
 	 */
 	function edd_register_recount_tools( array $tools ) {
 		static $manager = null;
+
 		if ( null === $manager ) {
 			$manager = new RecountTools();
-			$manager->init();
 		}
 
 		$result = $manager->register( $tools );
 
 		if ( is_wp_error( $result ) ) {
-			edd_debug_log( sprintf( '[EDD Recount Tools] Registration error: %s', $result->get_error_message() ) );
-
 			return $result;
 		}
 
